@@ -11,3 +11,4 @@ python-dotenv
 pydantic
 google-generativeai
 requests
+langchain-huggingface

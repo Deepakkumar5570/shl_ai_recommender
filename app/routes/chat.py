@@ -1,37 +1,109 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
-from app.models.request_models import ChatRequest
-from app.models.response_models import ChatResponse
+from app.agent.clarification_engine import (
+    needs_clarification,
+    generate_clarification_question
+)
 
-from app.agent.conversation_state import extract_context
-from app.agent.clarification_engine import needs_clarification
-from app.agent.recommendation_engine import generate_recommendations
+from app.agent.recommendation_engine import (
+    generate_recommendations
+)
+
+from app.agent.conversation_state import (
+    conversation_state
+)
 
 router = APIRouter()
+
+
+class ChatRequest(BaseModel):
+    messages: list
 
 
 @router.post("/chat")
 def chat(request: ChatRequest):
 
-    messages = [m.dict() for m in request.messages]
+    query = request.messages[-1]["content"]
 
-    state = extract_context(messages)
+    lower_query = query.lower()
 
-    clarification_needed, question = needs_clarification(state)
+    # =========================
+    # RESET STATE FOR NEW ROLE
+    # =========================
 
-    if clarification_needed:
+    new_role_keywords = [
+        "developer",
+        "engineer",
+        "analyst",
+        "manager",
+        "python",
+        "java",
+        "hiring",
+        "frontend",
+        "backend",
+        "data scientist",
+        "devops"
+    ]
+
+    if any(word in lower_query for word in new_role_keywords):
+
+        conversation_state.clear()
+
+    state = conversation_state
+
+    # =========================
+    # STORE USER INPUT
+    # =========================
+
+    if "role" not in state:
+
+        state["role"] = query
+
+    elif "seniority" not in state:
+
+        state["seniority"] = query
+
+    # =========================
+    # ASK CLARIFICATION
+    # =========================
+
+    if needs_clarification(state):
+
+        question = generate_clarification_question(state)
+
         return {
             "reply": question,
-            "recommendations": [],
-            "end_of_conversation": False
+            "recommendations": []
         }
 
-    query = " ".join([m["content"] for m in messages])
+    # =========================
+    # FINAL QUERY
+    # =========================
 
-    recommendations = generate_recommendations(query)
+    final_query = f"""
+    {state.get('role', '')}
+    {state.get('seniority', '')}
+    """
+
+    recommendations = generate_recommendations(
+        final_query,
+        state
+    )
+
+    reply = (
+        f"Here are {len(recommendations)} SHL assessments "
+        f"suitable for {state.get('seniority')} "
+        f"{state.get('role')} hiring needs."
+    )
+
+    # =========================
+    # CLEAR STATE AFTER RESULT
+    # =========================
+
+    conversation_state.clear()
 
     return {
-        "reply": "Here are recommended SHL assessments.",
-        "recommendations": recommendations,
-        "end_of_conversation": False
+        "reply": reply,
+        "recommendations": recommendations
     }
