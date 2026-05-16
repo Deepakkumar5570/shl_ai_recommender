@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function App() {
 
@@ -15,6 +15,13 @@ export default function App() {
   const [input, setInput] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   const handleSend = async () => {
 
@@ -156,19 +163,17 @@ export default function App() {
 
                   <div
                     key={index}
-                    className={`flex ${
-                      message.role === "user"
+                    className={`flex ${message.role === "user"
                         ? "justify-end"
                         : "justify-start"
-                    }`}
+                      }`}
                   >
 
                     <div
-                      className={`max-w-2xl rounded-3xl px-6 py-5 shadow-sm ${
-                        message.role === "user"
+                      className={`max-w-2xl rounded-3xl px-6 py-5 shadow-sm ${message.role === "user"
                           ? "bg-blue-600 text-white rounded-br-md"
                           : "bg-white border border-slate-200 text-slate-800 rounded-bl-md"
-                      }`}
+                        }`}
                     >
 
                       <p className="leading-relaxed whitespace-pre-line">
@@ -196,6 +201,7 @@ export default function App() {
                   </div>
 
                 )}
+                <div ref={messagesEndRef}></div>
 
               </div>
 
@@ -221,7 +227,7 @@ export default function App() {
                   <button
                     onClick={handleSend}
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-8 py-5 rounded-2xl font-semibold transition-all"
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white px-8 py-5 rounded-2xl font-semibold transition-all"
                   >
                     {loading ? "..." : "Send"}
                   </button>
@@ -307,22 +313,22 @@ export default function App() {
                       {item.job_levels &&
                         item.job_levels.length > 0 && (
 
-                        <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-4 flex flex-wrap gap-2">
 
-                          {item.job_levels.slice(0, 3).map((level, idx) => (
+                            {item.job_levels.slice(0, 3).map((level, idx) => (
 
-                            <span
-                              key={idx}
-                              className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs"
-                            >
-                              {level}
-                            </span>
+                              <span
+                                key={idx}
+                                className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs"
+                              >
+                                {level}
+                              </span>
 
-                          ))}
+                            ))}
 
-                        </div>
+                          </div>
 
-                      )}
+                        )}
 
                       {/* BUTTON */}
 
