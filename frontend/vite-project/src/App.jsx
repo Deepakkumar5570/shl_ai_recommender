@@ -17,9 +17,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const BACKEND_URL =
-    import.meta.env.VITE_API_URL ||
-    "http://127.0.0.1:8000";
+  const BACKEND_URL = "https://shl-ai-recommender-ue80.onrender.com";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
