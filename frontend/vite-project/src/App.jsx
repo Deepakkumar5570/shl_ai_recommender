@@ -43,6 +43,8 @@ export default function App() {
 
     try {
 
+      //latest deploy
+
       const response = await fetch(
         "https://shl-ai-recommender-ue80.onrender.com/chat",
         {
