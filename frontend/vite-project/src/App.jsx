@@ -17,6 +17,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const BACKEND_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://127.0.0.1:8000";
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -46,7 +50,7 @@ export default function App() {
       //latest deploy
 
       const response = await fetch(
-        "https://shl-ai-recommender-ue80.onrender.com/chat",
+        `${BACKEND_URL}/chat`,
         {
           method: "POST",
           headers: {
@@ -166,15 +170,15 @@ export default function App() {
                   <div
                     key={index}
                     className={`flex ${message.role === "user"
-                        ? "justify-end"
-                        : "justify-start"
+                      ? "justify-end"
+                      : "justify-start"
                       }`}
                   >
 
                     <div
                       className={`max-w-2xl rounded-3xl px-6 py-5 shadow-sm ${message.role === "user"
-                          ? "bg-blue-600 text-white rounded-br-md"
-                          : "bg-white border border-slate-200 text-slate-800 rounded-bl-md"
+                        ? "bg-blue-600 text-white rounded-br-md"
+                        : "bg-white border border-slate-200 text-slate-800 rounded-bl-md"
                         }`}
                     >
 

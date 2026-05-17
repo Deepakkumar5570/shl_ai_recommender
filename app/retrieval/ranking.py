@@ -1,3 +1,6 @@
+from app.utils.helpers import get_metadata
+
+
 def rerank_documents(docs, state):
 
     ranked = []
@@ -6,7 +9,7 @@ def rerank_documents(docs, state):
 
         score = 0
 
-        metadata = doc.metadata
+        metadata = get_metadata(doc)
 
         job_levels = metadata.get("job_levels", [])
         keys = metadata.get("keys", [])

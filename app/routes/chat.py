@@ -24,6 +24,16 @@ class ChatRequest(BaseModel):
 @router.post("/chat")
 def chat(request: ChatRequest):
 
+    # =========================
+    # VALIDATION
+    # =========================
+
+    if not request.messages:
+        return {
+            "reply": "No messages received.",
+            "recommendations": []
+        }
+
     query = request.messages[-1]["content"]
 
     lower_query = query.lower()
@@ -78,7 +88,7 @@ def chat(request: ChatRequest):
         }
 
     # =========================
-    # FINAL QUERY
+    # BUILD FINAL QUERY
     # =========================
 
     final_query = f"""
@@ -86,10 +96,29 @@ def chat(request: ChatRequest):
     {state.get('seniority', '')}
     """
 
-    recommendations = generate_recommendations(
-        final_query,
-        state
-    )
+    # =========================
+    # GENERATE RECOMMENDATIONS
+    # =========================
+
+    try:
+
+        recommendations = generate_recommendations(
+            final_query,
+            state
+        )
+
+    except Exception as e:
+
+        print("RECOMMENDATION ERROR:", str(e))
+
+        return {
+            "reply": "Recommendation engine failed.",
+            "recommendations": []
+        }
+
+    # =========================
+    # REPLY
+    # =========================
 
     reply = (
         f"Here are {len(recommendations)} SHL assessments "
@@ -98,10 +127,14 @@ def chat(request: ChatRequest):
     )
 
     # =========================
-    # CLEAR STATE AFTER RESULT
+    # CLEAR STATE
     # =========================
 
     conversation_state.clear()
+
+    # =========================
+    # RETURN RESPONSE
+    # =========================
 
     return {
         "reply": reply,

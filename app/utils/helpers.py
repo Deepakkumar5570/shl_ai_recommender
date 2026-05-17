@@ -23,3 +23,14 @@ def build_reply(state, recommendations):
         f"Here are {total} SHL assessments suitable for "
         f"{seniority} {role} hiring needs focusing on {capability_text} evaluation."
     )
+
+
+def get_metadata(doc):
+
+    if isinstance(doc, dict):
+        return doc
+
+    if hasattr(doc, "metadata"):
+        return doc.metadata or {}
+
+    return {}

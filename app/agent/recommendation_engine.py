@@ -1,4 +1,5 @@
 from app.retrieval.retriever import retrieve_assessments
+from app.utils.helpers import get_metadata
 
 SENIORITY_KEYWORDS = {
     "entry": [
@@ -246,7 +247,7 @@ def build_recommendation(
     score
 ):
 
-    metadata = doc.metadata
+    metadata = get_metadata(doc)
 
     return {
 
@@ -296,7 +297,7 @@ def generate_recommendations(
 
     for doc in docs:
 
-        metadata = doc.metadata
+        metadata = get_metadata(doc)
 
         metadata_text = f"""
         {metadata.get('name', '')}
