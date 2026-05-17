@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Any
 
 from app.agent.clarification_engine import (
     needs_clarification,
@@ -18,7 +19,7 @@ router = APIRouter()
 
 
 class ChatRequest(BaseModel):
-    messages: list
+    messages: list[Any]
 
 
 @router.post("/chat")
@@ -29,12 +30,25 @@ def chat(request: ChatRequest):
     # =========================
 
     if not request.messages:
-        return {
-            "reply": "No messages received.",
-            "recommendations": []
-        }
+        raise HTTPException(status_code=400, detail="messages must be a non-empty list")
 
-    query = request.messages[-1]["content"]
+    last_message = request.messages[-1]
+
+    if isinstance(last_message, str):
+        query = last_message
+    elif isinstance(last_message, dict):
+        query = last_message.get("content", "")
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Each message must be a string or an object with a 'content' field"
+        )
+
+    if not query or not isinstance(query, str):
+        raise HTTPException(
+            status_code=400,
+            detail="The last message must include a non-empty 'content' string"
+        )
 
     lower_query = query.lower()
 
