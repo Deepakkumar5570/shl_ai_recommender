@@ -10,7 +10,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://shl-ai-recommender.vercel.app"
+        "https://shl-ai-recommender.vercel.app",
+        "https://shl-ai-recommender-ue80.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
